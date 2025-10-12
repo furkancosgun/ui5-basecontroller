@@ -92,32 +92,27 @@ This BaseController extends the standard `sap.ui.core.mvc.Controller` with essen
 3\.  **Extend in your View Controllers:**
 In every view controller, extend the **`BaseController`** instead of the standard `sap.ui.core.mvc.Controller`:
     
-\`\`\`javascript
+```javascript
 // MyView.controller.js
 sap.ui.define([
-"./BaseController" // Path to your BaseController
-], (BaseController) =\> {
-"use strict";
-
+    "com/company/demo/controller/BaseController" // Path to your BaseController
+], (BaseController) => {
+    "use strict";
 
     return BaseController.extend("com.company.app.controller.MyView", {
-        onSave: async function () {
+        onSave: async function() {
             // Use the inherited helper function directly
             const bConfirmed = await this.showConfirmation("Do you want to proceed?");
 
             if (bConfirmed) {
-               this.showToast("Saving data...");
-               // Example OData Service Call
-               // await this.withBusyIndicator(this.callService("create", "/Products", oPayload));
+                this.showToast("Saving data...");
+                // Example OData Service Call
+                // await this.withBusyIndicator(this.callService("create", "/Products", oPayload));
             }
         }
     });
 });
-
 ```
-````
-
-    
 
 ## 📄 Demo Code
 
