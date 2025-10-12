@@ -1,0 +1,222 @@
+<mvc:View
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m"
+    controllerName="com.company.demo.controller.Home"
+>
+    <Page title="{i18n>title}">
+        <content>
+            <VBox class="sapUiContentPadding">
+                <Title
+                    text="Messaging and Notifications"
+                    level="H2"
+                    class="sapUiSmallMarginBottom"
+                />
+                <HBox
+                    wrap="Wrap"
+                    class="sapUiSmallMarginBottom"
+                >
+                    <Button
+                        text="Show Toast"
+                        press=".onShowToast"
+                        type="Default"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                    <Button
+                        text="Show Success"
+                        press=".onShowSuccess"
+                        type="Success"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                    <Button
+                        text="Show Information"
+                        press=".onShowInfo"
+                        type="Neutral"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                    <Button
+                        text="Show Warning"
+                        press=".onShowWarning"
+                        type="Attention"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                    <Button
+                        text="Show Error"
+                        press=".onShowError"
+                        type="Reject"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                    <Button
+                        text="Show Confirmation"
+                        press=".onShowConfirmation"
+                        type="Emphasized"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                </HBox>
+
+                <Title
+                    text="Loading and Service Operations"
+                    level="H2"
+                    class="sapUiSmallMarginTop sapUiSmallMarginBottom"
+                />
+                <HBox
+                    wrap="Wrap"
+                    class="sapUiSmallMarginBottom"
+                >
+                    <Button
+                        text="Show Busy Indicator (5s)"
+                        press=".onShowBusyIndicator"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                    <Button
+                        text="Service Call Simulation"
+                        press=".onCallServiceDemo"
+                        type="Accept"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                    <Button
+                        text="Detailed Service Error Sim."
+                        press=".onShowServiceError"
+                        type="Reject"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                </HBox>
+
+                <Title
+                    text="Data, Dialogs, and Fragments"
+                    level="H2"
+                    class="sapUiSmallMarginTop sapUiSmallMarginBottom"
+                />
+                <HBox
+                    wrap="Wrap"
+                    class="sapUiSmallMarginBottom"
+                >
+                    <Button
+                        text="JSON Model Data Operations"
+                        press=".onModelDataDemo"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                    <Button
+                        text="Local Storage (Save/Load)"
+                        press=".onLocalStorageDemo"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                    <Button
+                        text="Dynamic Select Dialog"
+                        press=".onOpenSelectDialog"
+                        type="Emphasized"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                    <Button
+                        text="Digital Signature Dialog"
+                        press=".onOpenSignatureDialog"
+                        type="Emphasized"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                    <Button
+                        text="Load Async Fragment"
+                        press=".onLoadFragmentDemo"
+                        type="Default"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                    />
+                </HBox>
+
+                <Title
+                    text="Table and Export"
+                    level="H2"
+                    class="sapUiSmallMarginTop sapUiSmallMarginBottom"
+                />
+                <Table
+                    id="productsTable"
+                    items="{/Products}"
+                    growing="true"
+                    growingThreshold="5"
+                >
+                    <headerToolbar>
+                        <Toolbar>
+                            <Title
+                                text="Products Table (Export Demo)"
+                                level="H3"
+                            />
+                            <ToolbarSpacer />
+                            <Button
+                                text="Export to Excel"
+                                icon="sap-icon://excel-attachment"
+                                press=".onExportToExcel"
+                                type="Transparent"
+                            />
+                        </Toolbar>
+                    </headerToolbar>
+                    <columns>
+                        <Column>
+                            <customData>
+                                <core:CustomData
+                                    key="export.label"
+                                    value="ID"
+                                />
+                                <core:CustomData
+                                    key="export.property"
+                                    value="ProductID"
+                                />
+                                <core:CustomData
+                                    key="export.type"
+                                    value="Number"
+                                />
+                            </customData>
+                            <Text text="ID" />
+                        </Column>
+                        <Column>
+                            <Text text="Product Name" />
+                            <customData>
+                                <core:CustomData
+                                    key="export.label"
+                                    value="Product Name"
+                                />
+                                <core:CustomData
+                                    key="export.property"
+                                    value="Name"
+                                />
+                            </customData>
+                        </Column>
+                        <Column>
+                            <customData>
+                                <core:CustomData
+                                    key="export.label"
+                                    value="Price"
+                                />
+                                <core:CustomData
+                                    key="export.property"
+                                    value="Price"
+                                />
+                                <core:CustomData
+                                    key="export.type"
+                                    value="Currency"
+                                />
+                            </customData>
+                            <Text text="Price" />
+                        </Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <Text text="{ProductID}" />
+                                <Text text="{Name}" />
+                                <ObjectNumber
+                                    number="{Price}"
+                                    unit="USD"
+                                />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </VBox>
+        </content>
+        <footer>
+            <Bar>
+                <contentLeft>
+                    <Text text="BaseController Demo" />
+                </contentLeft>
+            </Bar>
+        </footer>
+    </Page>
+</mvc:View>

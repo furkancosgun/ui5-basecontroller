@@ -1,0 +1,28 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+>
+    <Dialog
+        title="Async Fragment Demo Dialog"
+        resizable="true"
+    >
+        <content>
+            <VBox class="sapUiSmallPadding">
+                <Text
+                    text="This dialog was loaded asynchronously using the BaseController helper method."
+                />
+                <DatePicker
+                    placeholder="Enter a date"
+                    class="sapUiSmallMarginTop"
+                />
+            </VBox>
+        </content>
+        <endButton>
+            <Button
+                text="Close"
+                press=".onCloseFragment"
+                type="Emphasized"
+            />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
