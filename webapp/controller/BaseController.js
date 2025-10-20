@@ -19,7 +19,8 @@ sap.ui.define([
     "sap/m/HBox",
     "sap/m/VBox",
     "sap/ui/core/HTML",
-    "sap/ui/export/Spreadsheet"
+    "sap/ui/export/Spreadsheet",
+    "sap/ui/core/Fragment"
 ], (
     Controller,
     History,
@@ -41,7 +42,8 @@ sap.ui.define([
     HBox,
     VBox,
     HTML,
-    Spreadsheet
+    Spreadsheet,
+    Fragment
 ) => {
     "use strict";
 
@@ -62,6 +64,7 @@ sap.ui.define([
         DIGITAL_SIGNATURE_CANCEL: "digitalSignature.cancel",
     };
 
+
     return Controller.extend("com.company.demo.controller.BaseController", {
 
         // =================================================================
@@ -81,7 +84,7 @@ sap.ui.define([
          * Convenience method for getting a view model.
          * @public
          * @param {string} [sName] The model name.
-         * @returns {sap.ui.model.Model | undefined} The model instance.
+         * @returns {sap.ui.model.Model} The model instance.
          */
         getModel(sName) {
             return this.getView().getModel(sName);
@@ -102,13 +105,13 @@ sap.ui.define([
         /**
          * Gets a property value from a model.
          * @public
-         * @param {string} sPath The binding path (e.g., "/Users/0/Name").
-         * @param {string} [sName] The model name (optional).
-         * @returns {any | null} The property value or `null` if the model doesn't exist.
+         * @param {string} sPath The binding path.
+         * @param {string} [sName] The model name.
+         * @returns {any} The property value.
          */
         getProperty(sPath, sName) {
             const oModel = this.getModel(sName);
-            return oModel?.getProperty(sPath) ?? null;
+            return oModel?.getProperty(sPath);
         },
 
         /**
@@ -116,19 +119,17 @@ sap.ui.define([
          * @public
          * @param {string} sPath The binding path.
          * @param {any} vValue The value to set.
-         * @param {string} [sName] The model name (optional).
+         * @param {string} [sName] The model name.
          */
         setProperty(sPath, vValue, sName) {
             const oModel = this.getModel(sName);
-            if (oModel) {
-                oModel.setProperty(sPath, vValue);
-            }
+            oModel?.setProperty(sPath, vValue);
         },
 
         /**
          * Gets the resource bundle.
          * @public
-         * @returns {sap.ui.model.resource.ResourceBundle} The resourceBundle of the component's i18n model.
+         * @returns {sap.ui.model.resource.ResourceBundle} The resourceBundle.
          */
         getResourceBundle() {
             return this.getOwnerComponent().getModel("i18n").getResourceBundle();
@@ -138,7 +139,7 @@ sap.ui.define([
          * Gets i18n text from the resource bundle.
          * @public
          * @param {string} sKey The i18n text key.
-         * @param {Array<string>} [aParams] Optional parameters for the text.
+         * @param {Array} [aParams] Optional parameters for the text.
          * @returns {string} The translated text.
          */
         getText(sKey, aParams) {
@@ -149,17 +150,17 @@ sap.ui.define([
          * Navigates to a route with optional parameters.
          * @public
          * @param {string} sRouteName The route name.
-         * @param {object} [oParams={}] The route parameters.
-         * @param {object} [oComponentTargetInfo={}] The component target info (if routing to another component).
+         * @param {object} [oParams] The route parameters.
+         * @param {object} [oComponentTargetInfo] The component target info.
          */
-        navTo(sRouteName, oParams = {}, oComponentTargetInfo = {}) {
+        navTo(sRouteName, oParams, oComponentTargetInfo) {
             this.getRouter().navTo(sRouteName, oParams, oComponentTargetInfo);
         },
 
         /**
          * Navigates back in history or to a fallback route.
          * @public
-         * @param {string} [sFallbackRoute="RouteHome"] The route to navigate to if no history exists.
+         * @param {string} [sFallbackRoute] The fallback route.
          */
         onNavBack(sFallbackRoute) {
             const sPreviousHash = History.getInstance().getPreviousHash();
@@ -177,7 +178,7 @@ sap.ui.define([
         /**
          * Shows a busy indicator.
          * @public
-         * @param {number} [iDelay=0] The delay in milliseconds before opening.
+         * @param {number} [iDelay] The delay in milliseconds.
          */
         showBusyIndicator(iDelay = 0) {
             BusyIndicator.show(iDelay);
@@ -192,11 +193,10 @@ sap.ui.define([
         },
 
         /**
-         * Executes a Promise and shows a busy indicator during its execution.
+         * Executes a Promise with busy indicator.
          * @public
-         * @template T
-         * @param {Promise<T>} oPromise The promise to wait for.
-         * @returns {Promise<T>} The result of the promise.
+         * @param {Promise} oPromise The promise to execute.
+         * @returns {Promise} The result of the promise.
          */
         async withBusyIndicator(oPromise) {
             this.showBusyIndicator();
@@ -212,7 +212,7 @@ sap.ui.define([
         // =================================================================
 
         /**
-         * Shows a brief toast message at the bottom of the screen.
+         * Shows a toast message.
          * @public
          * @param {string} sMessage The message to show.
          */
@@ -221,11 +221,11 @@ sap.ui.define([
         },
 
         /**
-         * Shows an error dialog and returns a Promise that resolves when the dialog is closed.
+         * Shows an error dialog.
          * @public
-         * @param {string|Error} vError The error message or Error object.
+         * @param {string|Error} vError The error message or object.
          * @param {string} [sTitle] The dialog title.
-         * @returns {Promise<string>} A Promise that resolves with the action taken to close the dialog.
+         * @returns {Promise} Promise that resolves when dialog closes.
          */
         showError(vError, sTitle) {
             const sMessage = typeof vError === "string" ? vError : vError.message || this.getText(I18N_KEYS.ERROR_UNKNOWN);
@@ -238,11 +238,11 @@ sap.ui.define([
         },
 
         /**
-         * Shows a success dialog and returns a Promise that resolves when the dialog is closed.
+         * Shows a success dialog.
          * @public
          * @param {string} sMessage The success message.
          * @param {string} [sTitle] The dialog title.
-         * @returns {Promise<string>} A Promise that resolves with the action taken to close the dialog.
+         * @returns {Promise} Promise that resolves when dialog closes.
          */
         showSuccess(sMessage, sTitle) {
             return new Promise((resolve) => {
@@ -254,11 +254,11 @@ sap.ui.define([
         },
 
         /**
-         * Shows an information dialog and returns a Promise that resolves when the dialog is closed.
+         * Shows an information dialog.
          * @public
          * @param {string} sMessage The information message.
          * @param {string} [sTitle] The dialog title.
-         * @returns {Promise<string>} A Promise that resolves with the action taken to close the dialog.
+         * @returns {Promise} Promise that resolves when dialog closes.
          */
         showInfo(sMessage, sTitle) {
             return new Promise((resolve) => {
@@ -270,11 +270,11 @@ sap.ui.define([
         },
 
         /**
-         * Shows a warning dialog and returns a Promise that resolves when the dialog is closed.
+         * Shows a warning dialog.
          * @public
          * @param {string} sMessage The warning message.
          * @param {string} [sTitle] The dialog title.
-         * @returns {Promise<string>} A Promise that resolves with the action taken to close the dialog.
+         * @returns {Promise} Promise that resolves when dialog closes.
          */
         showWarning(sMessage, sTitle) {
             return new Promise((resolve) => {
@@ -286,11 +286,11 @@ sap.ui.define([
         },
 
         /**
-         * Shows a confirmation dialog and returns a Promise that resolves with a boolean.
+         * Shows a confirmation dialog.
          * @public
          * @param {string} sMessage The confirmation message.
          * @param {string} [sTitle] The dialog title.
-         * @returns {Promise<boolean>} A Promise that resolves to `true` if confirmed (OK), `false` otherwise (Cancel).
+         * @returns {Promise<boolean>} Promise that resolves with confirmation result.
          */
         showConfirmation(sMessage, sTitle) {
             return new Promise((resolve) => {
@@ -300,27 +300,98 @@ sap.ui.define([
                 });
             });
         },
-
         /**
-         * Shows a detailed service error dialog, attempting to parse error details.
-         * If detailed error items are found, a MessageView dialog is opened.
+         * Shows a service error dialog with support for JSON, XML, and raw error responses.
          * @public
-         * @param {object} oError The error object from the service call (typically containing `responseText`).
+         * @param {object} oError The error object from service call.
          */
         showServiceError(oError) {
+            // Tüm hata detaylarını debug için logla
+            console.error("Service Error Details:", {
+                responseText: oError.responseText,
+                statusCode: oError.statusCode,
+                statusText: oError.statusText,
+                message: oError.message,
+                fullError: oError
+            });
+
             try {
-                const oErrorData = JSON.parse(oError.responseText)?.error;
-                if (oErrorData?.innererror?.errordetails) {
-                    this._showDetailedServiceError(oErrorData.innererror.errordetails);
-                } else {
-                    MessageBox.error(oErrorData?.message?.value || this.getText(I18N_KEYS.ERROR_UNKNOWN), {
-                        details: oErrorData?.innererror
-                    });
+                let sErrorMessage = this.getText(I18N_KEYS.ERROR_UNKNOWN);
+
+                // 1. JSON Response
+                if (oError.responseText?.trim().startsWith('{')) {
+                    const oErrorData = JSON.parse(oError.responseText)?.error;
+                    if (oErrorData?.innererror?.errordetails) {
+                        this._showDetailedServiceError(oErrorData.innererror.errordetails);
+                        return;
+                    }
+                    sErrorMessage = oErrorData?.message?.value || oErrorData?.message || sErrorMessage;
                 }
-                console.error("Service Error:", oError);
+                // 2. XML Response
+                else if (oError.responseText?.includes('<?xml') || oError.responseText?.includes('<error>')) {
+                    sErrorMessage = this._parseXmlError(oError.responseText) || sErrorMessage;
+                }
+                // 3. Status Text (HTTP errors)
+                else if (oError.statusText && oError.statusText !== "HTTP request failed") {
+                    sErrorMessage = `${oError.statusCode}: ${oError.statusText}`;
+                }
+                // 4. Direct message
+                else if (oError.message && oError.message !== "HTTP request failed") {
+                    sErrorMessage = oError.message;
+                }
+                // 5. Fallback to status code only
+                else if (oError.statusCode) {
+                    sErrorMessage = `HTTP Error ${oError.statusCode}`;
+                }
+
+                MessageBox.error(sErrorMessage);
+
             } catch (e) {
-                console.error("Error parsing/processing service error:", e);
-                this.showError(this.getText(I18N_KEYS.ERROR_UNKNOWN));
+                console.error("Error processing service error:", e);
+                MessageBox.error(this.getText(I18N_KEYS.ERROR_UNKNOWN));
+            }
+        },
+        /**
+         * Parses XML error response to extract error message.
+         * @private
+         * @param {string} sXmlResponse The XML response string.
+         * @returns {string|null} The extracted error message or null.
+         */
+        _parseXmlError(sXmlResponse) {
+            try {
+                // Method 1: Simple regex for <message> tag
+                const sMessageMatch = sXmlResponse.match(/<message[^>]*>([^<]+)<\/message>/i);
+                if (sMessageMatch && sMessageMatch[1]) {
+                    return sMessageMatch[1].trim();
+                }
+
+                // Method 2: Regex for any text between <error> tags
+                const sErrorMatch = sXmlResponse.match(/<error[^>]*>([\s\S]*?)<\/error>/i);
+                if (sErrorMatch && sErrorMatch[1]) {
+                    const sErrorContent = sErrorMatch[1].replace(/<[^>]+>/g, '').trim();
+                    if (sErrorContent) return sErrorContent;
+                }
+
+                // Method 3: Try DOMParser if available
+                if (typeof DOMParser !== 'undefined') {
+                    try {
+                        const oParser = new DOMParser();
+                        const oXmlDoc = oParser.parseFromString(sXmlResponse, "text/xml");
+                        const oMessageElement = oXmlDoc.getElementsByTagName("message")[0];
+                        if (oMessageElement) {
+                            return oMessageElement.textContent.trim();
+                        }
+                    } catch (e) {
+                        console.warn("DOMParser failed, using fallback methods");
+                    }
+                }
+
+                console.warn("Could not parse XML error response:", sXmlResponse);
+                return null;
+
+            } catch (e) {
+                console.error("XML parsing error:", e);
+                return null;
             }
         },
 
@@ -329,49 +400,48 @@ sap.ui.define([
         // =================================================================
 
         /**
-         * Executes a Promise-based OData service call (assuming an OData model is set on the Component).
+         * Executes a Promise-based OData service call.
          * @public
-         * @param {"read" | "create" | "update" | "remove"} sMethod The OData method.
-         * @param {string} sPath The EntitySet path or entity path.
-         * @param {object} [oPayload] The payload for "create" or "update" operations.
-         * @param {object} [oParams] Additional OData parameters (e.g., urlParameters, filters).
-         * @returns {Promise<any>} A Promise that resolves with the result of the operation.
+         * @param {string|"read" | "create" | "update" | "remove"} sMethod The OData method.
+         * @param {string} sPath The EntitySet path.
+         * @param {object} [oArgs] Additional OData parameters.
+         * @returns {Promise} Promise with operation result.
          */
-        callService(sMethod, sPath, oPayload, oParams) {
+        callService(sMethod, sPath, oArgs) {
             const oModel = this.getOwnerComponent().getModel();
             if (!oModel || typeof oModel[sMethod] !== "function") {
-                return Promise.reject(new Error(`OData method '${sMethod}' not found on the model.`));
+                return Promise.reject(new Error(`OData method '${sMethod}' not found.`));
             }
 
             return new Promise((resolve, reject) => {
                 const aArgs = [sPath];
-                if (sMethod !== "read") {
-                    aArgs.push(oPayload || {});
+
+                if (oArgs && (sMethod === "create" || sMethod === "update")) {
+                    aArgs.push(oArgs);
                 }
-                aArgs.push({
-                    ...oParams,
+
+                const oParams = {
+                    ...(sMethod === "read" ? oArgs : {}),
                     success: (oData) => {
-                        // Resolve with oData.results for collections, or oData for single entries/results
                         resolve(sMethod === "read" ? (oData.results || oData) : oData);
                     },
                     error: reject
-                });
+                };
+
+                aArgs.push(oParams);
                 oModel[sMethod].apply(oModel, aArgs);
             });
         },
 
         /**
-         * Creates a URI path for a specific OData entity based on its key properties.
+         * Creates a URI path for an OData entity.
          * @public
-         * @param {string} sEntitySet The name of the EntitySet.
-         * @param {object} oKeyObject The object containing the key properties and values.
-         * @returns {string} The URI path for the entity (e.g., "/Products('123')").
+         * @param {string} sEntitySet The EntitySet name.
+         * @param {object} oKeyObject The key properties.
+         * @returns {string} The URI path for the entity.
          */
         createEntityKey(sEntitySet, oKeyObject) {
             const oModel = this.getOwnerComponent().getModel();
-            if (!oModel) {
-                throw new Error("OData model is not available.");
-            }
             return oModel.createKey(sEntitySet, oKeyObject);
         },
 
@@ -380,32 +450,31 @@ sap.ui.define([
         // =================================================================
 
         /**
-         * Saves a key-value pair to the local storage (data is JSON stringified).
+         * Saves data to local storage.
          * @public
-         * @param {string} sKey The key to store the data.
-         * @param {any} vValue The data to be stored.
+         * @param {string} sKey The storage key.
+         * @param {any} vValue The data to store.
          */
         saveToLocalStorage(sKey, vValue) {
-            if (!sKey || vValue === undefined) {
-                return;
-            }
+            if (!sKey || vValue === undefined) return;
+
             const oStorage = Storage.get(Storage.Type.local);
             oStorage.put(sKey, JSON.stringify(vValue));
         },
 
         /**
-         * Retrieves a value from the local storage (data is JSON parsed).
+         * Retrieves data from local storage.
          * @public
-         * @param {string} sKey The key of the data.
-         * @returns {any | null} The retrieved data or `null` if not found.
+         * @param {string} sKey The storage key.
+         * @returns {any} The retrieved data.
          */
         loadFromLocalStorage(sKey) {
             const oStorage = Storage.get(Storage.Type.local);
             const sValue = oStorage.get(sKey);
+
             try {
                 return sValue ? JSON.parse(sValue) : null;
-            } catch (e) {
-                console.error(`Error parsing Local Storage key ${sKey}:`, e);
+            } catch (oError) {
                 return null;
             }
         },
@@ -417,12 +486,12 @@ sap.ui.define([
         /**
          * Loads an XML Fragment asynchronously.
          * @public
-         * @param {object} oOptions - Configuration options for loading the fragment.
-         * @param {string} oOptions.sName - The name of the fragment (e.g., "com.company.demo.view.MyFragment").
-         * @param {sap.ui.core.mvc.Controller} [oOptions.oController=this] - The controller instance to attach events to.
-         * @param {boolean} [oOptions.bOpenAsDialog=false] - If true, the loaded control (expected to be a sap.m.Dialog/Popover) will be opened automatically.
-         * @param {boolean} [oOptions.bAddAsDependent=false] - If true, ensures the fragment inherits view models and is destroyed with the view.
-         * @returns {Promise<sap.ui.core.Control>} A Promise that resolves with the fragment's root control instance.
+         * @param {object} oOptions Configuration options.
+         * @param {string} oOptions.sName The fragment name.
+         * @param {sap.ui.core.mvc.Controller} [oOptions.oController] The controller.
+         * @param {boolean} [oOptions.bOpenAsDialog] Open as dialog.
+         * @param {boolean} [oOptions.bAddAsDependent] Add as dependent.
+         * @returns {Promise} Promise with fragment instance.
          */
         async loadAsyncFragment(oOptions) {
             const {
@@ -433,24 +502,16 @@ sap.ui.define([
             } = oOptions;
 
             if (!sName) {
-                throw new Error("Fragment name (sName) is required for loadAsyncFragment.");
+                throw new Error("Fragment name is required.");
             }
 
-            // Check for native loadFragment availability
-            if (typeof this.loadFragment !== "function") {
-                throw new Error("The native loadFragment method is not available on this controller instance. SAPUI5 version might be too old or method not mixed in.");
-            }
-
-            const oFragment = await this.loadFragment({
-                name: sName,
-                controller: oController
-            });
+            const oFragment = await this._loadFragment(sName, oController);
 
             if (bAddAsDependent) {
                 this.getView().addDependent(oFragment);
             }
 
-            if (bOpenAsDialog && oFragment.open) {
+            if (bOpenAsDialog && typeof oFragment.open === "function") {
                 oFragment.open();
             }
 
@@ -458,24 +519,18 @@ sap.ui.define([
         },
 
         /**
-         * Opens a dynamic SelectDialog for item selection and returns a Promise.
+         * Opens a dynamic SelectDialog.
          * @public
-         * @param {object} oOptions - Configuration for the dialog.
-         * @param {string} [oOptions.sTitle] - The title of the dialog. Defaults to i18n key "dialog.title".
-         * @param {Array<object>} oOptions.aData - The data array to be displayed in the list.
-         * @param {object} [oOptions.oMapping] - The list item binding mapping. Defaults to `{title: '{title}', description: '{description}'}`.
-         * @param {string} [oOptions.sNoDataText] - The text to display when the list is empty. Defaults to i18n key "dialog.noDataFound".
-         * @param {Array<string>} [oOptions.aSearchFields] - The fields to search within the data. Defaults to `["title", "description"]`.
-         * @param {boolean} [oOptions.bMultiSelect=false] - Whether multi-selection is enabled.
-         * @returns {Promise<object | object[] | null>} A Promise that resolves with the selected item(s) or `null` if the dialog is canceled.
+         * @param {object} oOptions Configuration options.
+         * @returns {Promise} Promise with selected items.
          */
         openDynamicSelectDialog(oOptions) {
             return new Promise((resolve) => {
                 const {
                     aData,
                     oMapping = {
-                        title: `{title}`,
-                        description: `{description}`
+                        title: "{title}",
+                        description: "{description}"
                     },
                     sTitle = this.getText(I18N_KEYS.DIALOG_TITLE),
                     sNoDataText = this.getText(I18N_KEYS.DIALOG_NO_DATA_FOUND),
@@ -496,19 +551,23 @@ sap.ui.define([
                     },
                     search: (oEvent) => {
                         const sValue = oEvent.getParameter("value");
-                        const aSearchFilters = aSearchFields.map(field => new Filter(field, FilterOperator.Contains, sValue));
-                        const oCombinedFilter = new Filter({
-                            filters: aSearchFilters,
+                        const aFilters = aSearchFields.map(sField =>
+                            new Filter(sField, FilterOperator.Contains, sValue)
+                        );
+                        const oFilter = new Filter({
+                            filters: aFilters,
                             or: true
                         });
-                        oSelectDialog.getBinding("items").filter(sValue ? [oCombinedFilter] : []);
+                        oSelectDialog.getBinding("items").filter(sValue ? [oFilter] : []);
                     },
                     confirm: (oEvent) => {
                         const aSelectedItems = oEvent.getParameter("selectedItems");
-                        const aSelectedObjects = aSelectedItems.map(item => item.getBindingContext().getObject());
-                        const result = bMultiSelect ? aSelectedObjects : (aSelectedObjects[0] ?? null);
+                        const aSelectedObjects = aSelectedItems.map(oItem =>
+                            oItem.getBindingContext().getObject()
+                        );
+                        const vResult = bMultiSelect ? aSelectedObjects : (aSelectedObjects[0] || null);
                         oSelectDialog.destroy();
-                        resolve(result);
+                        resolve(vResult);
                     },
                     cancel: () => {
                         oSelectDialog.destroy();
@@ -517,111 +576,113 @@ sap.ui.define([
                 });
 
                 oSelectDialog.setModel(oModel);
-                oSelectDialog.open(null);
+                oSelectDialog.open("");
             });
         },
 
         /**
-         * Opens a dialog for digital signature and returns a Promise with the Base64 image data.
+         * Opens a digital signature dialog.
          * @public
-         * @param {object} [oOptions={}] - Configuration options for the dialog.
-         * @param {string} [oOptions.title] - Dialog title. Defaults to i18n key "digitalSignature.title".
-         * @param {number} [oOptions.width=350] - Width of the signature canvas.
-         * @param {number} [oOptions.height=350] - Height of the signature canvas.
-         * @returns {Promise<string|null>} - A Promise that resolves with the signature data (Base64 JPEG image) or `null` if the dialog is canceled.
+         * @param {object} [oOptions] Configuration options.
+         * @returns {Promise} Promise with signature data.
          */
         openDigitalSignatureDialog(oOptions = {}) {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 const {
                     title = this.getText(I18N_KEYS.DIGITAL_SIGNATURE_TITLE),
-                    width = 350,
-                    height = 350,
-                    lineWidth = 2,
-                    lineCap = "round",
-                    strokeStyle = "#000000",
-                    fillStyle = "#fff",
+                        width = 350,
+                        height = 350,
+                        lineWidth = 2,
+                        strokeStyle = "#000000"
                 } = oOptions;
 
-                // Canvas HTML content
-                const sHtmlContent = `<canvas id='signatureCanvas' width='${width}' height='${height}' style='border:1px solid #000; background-color: #fff; touch-action: none;'></canvas>`;
+                const sHtmlContent = `
+                    <canvas id="signatureCanvas" width="${width}" height="${height}" 
+                            style="border:1px solid #000; background-color: #fff; touch-action: none;">
+                    </canvas>
+                `;
 
                 const oHtml = new HTML({
                     content: sHtmlContent,
-                    // Signature logic handled after canvas is rendered
                     afterRendering: () => {
-                        const canvas = document.getElementById('signatureCanvas');
-                        if (!canvas) {
-                            reject(new Error("Signature canvas not found after rendering."));
-                            return;
-                        }
+                        const oCanvas = document.getElementById("signatureCanvas");
+                        if (!oCanvas) return;
 
-                        const ctx = canvas.getContext("2d");
-                        let isDrawing = false;
-                        let lastX = 0;
-                        let lastY = 0;
+                        const oCtx = oCanvas.getContext("2d");
+                        let bDrawing = false;
+                        let iLastX = 0;
+                        let iLastY = 0;
 
-                        // Initial setup
-                        ctx.lineWidth = lineWidth;
-                        ctx.lineCap = lineCap;
-                        ctx.strokeStyle = strokeStyle;
-                        ctx.fillStyle = fillStyle;
-                        ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill background
+                        oCtx.lineWidth = lineWidth;
+                        oCtx.lineCap = "round";
+                        oCtx.strokeStyle = strokeStyle;
+                        oCtx.fillStyle = "#fff";
+                        oCtx.fillRect(0, 0, oCanvas.width, oCanvas.height);
 
-                        // Helper function to get correct coordinates for touch events
-                        const getCoords = (e) => {
-                            if (e.touches && e.touches.length > 0) {
-                                const touch = e.touches[0];
-                                const rect = canvas.getBoundingClientRect();
+                        const getCoords = (oEvent) => {
+                            if (oEvent.touches?.length > 0) {
+                                const oTouch = oEvent.touches[0];
+                                const oRect = oCanvas.getBoundingClientRect();
                                 return {
-                                    offsetX: touch.clientX - rect.left,
-                                    offsetY: touch.clientY - rect.top
+                                    offsetX: oTouch.clientX - oRect.left,
+                                    offsetY: oTouch.clientY - oRect.top
                                 };
                             }
                             return {
-                                offsetX: e.offsetX,
-                                offsetY: e.offsetY
+                                offsetX: oEvent.offsetX,
+                                offsetY: oEvent.offsetY
                             };
                         };
 
-                        const draw = (e) => {
-                            if (!isDrawing) return;
+                        const draw = (oEvent) => {
+                            if (!bDrawing) return;
                             const {
                                 offsetX,
                                 offsetY
-                            } = getCoords(e);
-                            ctx.beginPath();
-                            ctx.moveTo(lastX, lastY);
-                            ctx.lineTo(offsetX, offsetY);
-                            ctx.stroke();
-                            [lastX, lastY] = [offsetX, offsetY];
+                            } = getCoords(oEvent);
+                            oCtx.beginPath();
+                            oCtx.moveTo(iLastX, iLastY);
+                            oCtx.lineTo(offsetX, offsetY);
+                            oCtx.stroke();
+                            [iLastX, iLastY] = [offsetX, offsetY];
                         };
 
-                        const startDrawing = (e) => {
-                            isDrawing = true;
+                        const startDrawing = (oEvent) => {
+                            bDrawing = true;
                             const {
                                 offsetX,
                                 offsetY
-                            } = getCoords(e);
-                            [lastX, lastY] = [offsetX, offsetY];
-                            draw(e); // Draw a dot if it's just a tap/click
+                            } = getCoords(oEvent);
+                            [iLastX, iLastY] = [offsetX, offsetY];
                         };
 
                         const stopDrawing = () => {
-                            isDrawing = false;
+                            bDrawing = false;
                         };
 
-                        // Event listeners for mouse
-                        canvas.addEventListener('mousedown', startDrawing);
-                        canvas.addEventListener('mousemove', draw);
-                        canvas.addEventListener('mouseup', stopDrawing);
-                        canvas.addEventListener('mouseout', stopDrawing);
+                        // Mouse events
+                        oCanvas.addEventListener("mousedown", startDrawing);
+                        oCanvas.addEventListener("mousemove", draw);
+                        oCanvas.addEventListener("mouseup", stopDrawing);
+                        oCanvas.addEventListener("mouseout", stopDrawing);
 
-                        // Event listeners for touch (passive: false to prevent scrolling)
-                        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e); }, { passive: false });
-                        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }, { passive: false });
-                        canvas.addEventListener('touchend', stopDrawing);
-                        canvas.addEventListener('touchcancel', stopDrawing);
-                    },
+                        // Touch events
+                        oCanvas.addEventListener("touchstart", (oEvent) => {
+                            oEvent.preventDefault();
+                            startDrawing(oEvent);
+                        }, {
+                            passive: false
+                        });
+
+                        oCanvas.addEventListener("touchmove", (oEvent) => {
+                            oEvent.preventDefault();
+                            draw(oEvent);
+                        }, {
+                            passive: false
+                        });
+
+                        oCanvas.addEventListener("touchend", stopDrawing);
+                    }
                 });
 
                 const oDialog = new Dialog({
@@ -638,109 +699,85 @@ sap.ui.define([
                                             text: this.getText(I18N_KEYS.DIGITAL_SIGNATURE_CLEAR),
                                             type: "Reject",
                                             press: () => {
-                                                const canvas = document.getElementById('signatureCanvas');
-                                                if (canvas) {
-                                                    const ctx = canvas.getContext("2d");
-                                                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                                                    ctx.fillStyle = fillStyle;
-                                                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                                const oCanvas = document.getElementById("signatureCanvas");
+                                                if (oCanvas) {
+                                                    const oCtx = oCanvas.getContext("2d");
+                                                    oCtx.clearRect(0, 0, oCanvas.width, oCanvas.height);
+                                                    oCtx.fillStyle = "#fff";
+                                                    oCtx.fillRect(0, 0, oCanvas.width, oCanvas.height);
                                                 }
-                                            },
+                                            }
                                         }),
                                         new Button({
                                             text: this.getText(I18N_KEYS.DIGITAL_SIGNATURE_SAVE),
                                             type: "Emphasized",
                                             press: () => {
-                                                const canvas = document.getElementById('signatureCanvas');
-                                                if (canvas) {
-                                                    // Convert to Base64 JPEG string
-                                                    const dataUrl = canvas.toDataURL("image/jpeg");
+                                                const oCanvas = document.getElementById("signatureCanvas");
+                                                if (oCanvas) {
+                                                    const sDataUrl = oCanvas.toDataURL("image/jpeg");
                                                     oDialog.close();
-                                                    resolve(dataUrl);
-                                                } else {
-                                                    oDialog.close();
-                                                    reject(new Error("Canvas object not found on save."));
+                                                    resolve(sDataUrl);
                                                 }
-                                            },
-                                        }).addStyleClass("sapUiSmallMarginBegin"),
-                                    ],
-                                }).addStyleClass("sapUiSmallMarginTop"),
-                            ],
-                        }).addStyleClass("sapUiTinyMargin"),
+                                            }
+                                        }).addStyleClass("sapUiSmallMarginBegin")
+                                    ]
+                                }).addStyleClass("sapUiSmallMarginTop")
+                            ]
+                        }).addStyleClass("sapUiTinyMargin")
                     ],
                     endButton: new Button({
                         text: this.getText(I18N_KEYS.DIGITAL_SIGNATURE_CANCEL),
                         press: () => {
                             oDialog.close();
                             resolve(null);
-                        },
+                        }
                     }),
-                    afterClose: () => {
-                        oDialog.destroy();
-                    },
+                    afterClose: () => oDialog.destroy()
                 });
 
                 oDialog.open();
             });
         },
 
-
         // =================================================================
         // EXPORT UTILITIES
         // =================================================================
 
         /**
-         * Dynamically exports a table's data to an Excel (.xlsx) spreadsheet using sap.ui.export.Spreadsheet.
-         * The columns are dynamically configured based on visible table columns and their custom 'export.*' properties.
+         * Exports table data to Excel.
          * @public
-         * @param {string|sap.ui.table.Table|sap.m.Table} vTable - The ID of the table control or the control instance itself.
-         * @param {string} [sFileName="Export"] - The desired file name for the exported spreadsheet (without extension).
-         * @returns {Promise<void>} A Promise that resolves when the export is complete.
+         * @param {string|sap.ui.table.Table|sap.m.Table} vTable The table control.
+         * @param {string} [sFileName] The file name.
+         * @returns {Promise} Promise when export completes.
          */
         async exportTableToExcel(vTable, sFileName = "Export") {
             const oTable = typeof vTable === "string" ? this.getView().byId(vTable) : vTable;
+            if (!oTable) return;
 
-            if (!oTable) {
-                console.error("Table control not found:", vTable);
-                return;
-            }
-
-            // 1. Map UI table columns to Spreadsheet column format using CustomData
-            const aColumns = oTable
-                .getColumns()
+            const aColumns = oTable.getColumns()
                 .map(oColumn => {
-                    // Use a guard clause for columns without export properties
-                    const columnData = oColumn.data();
-                    const property = columnData["export.property"];
-                    if (!property) return null;
-
-                    return {
-                        label: columnData["export.label"],
-                        property: property,
-                        type: columnData["export.type"]
-                    };
+                    const oColumnData = oColumn.data();
+                    const sProperty = oColumnData["export.property"];
+                    return sProperty ? {
+                        label: oColumnData["export.label"],
+                        property: sProperty,
+                        type: oColumnData["export.type"]
+                    } : null;
                 })
-                .filter(column => column !== null);
+                .filter(oColumn => oColumn !== null);
 
-            // 2. Get the data source (binding)
             const oDataSource = oTable.getBinding("items") || oTable.getBinding("rows");
+            if (!oDataSource) return;
 
-            if (!oDataSource) {
-                console.warn("Table data binding not found. Cannot export.");
-                return;
-            }
-
-            // 3. Create and build the spreadsheet
-            const oSettings = {
+            const oSpreadsheet = new Spreadsheet({
                 workbook: {
-                    columns: aColumns,
+                    columns: aColumns
                 },
                 dataSource: oDataSource,
                 fileName: sFileName,
-                worker: false // Disable worker for async/await simplicity
-            };
+                worker: false
+            });
 
-            const oSpreadsheet = new Spreadsheet(oSettings);
             await oSpreadsheet.build();
             oSpreadsheet.destroy();
         },
@@ -750,10 +787,30 @@ sap.ui.define([
         // =================================================================
 
         /**
-         * Converts a service error severity type to a UI5 MessageType enumeration value.
+         * Internal method to load fragment.
          * @private
-         * @param {string} sType The error type (e.g., "info", "warning", "error").
-         * @returns {string} The converted UI5 MessageType (e.g., "Information", "Warning", "Error").
+         * @param {string} sName Fragment name.
+         * @param {sap.ui.core.mvc.Controller} oController Controller instance.
+         * @returns {Promise<sap.ui.core.Element>} Fragment instance.
+         */
+        async _loadFragment(sName, oController) {
+            if (typeof this.loadFragment === "function") {
+                return await this.loadFragment({
+                    name: sName,
+                    controller: oController
+                });
+            }
+            return await Fragment.load({
+                name: sName,
+                controller: oController
+            });
+        },
+
+        /**
+         * Converts service error type to UI5 MessageType.
+         * @private
+         * @param {string} sType The error type.
+         * @returns {string} The UI5 MessageType.
          */
         _serviceTypeToUI5MessageType(sType) {
             const sNormalizedType = sType?.toLowerCase();
@@ -761,26 +818,24 @@ sap.ui.define([
                 case "info":
                     return "Information";
                 default:
-                    // Capitalize first letter (e.g., "error" -> "Error")
-                    return sNormalizedType ? sNormalizedType.charAt(0).toUpperCase() + sNormalizedType.slice(1) : "Error";
+                    return sNormalizedType?.charAt(0).toUpperCase() + sNormalizedType?.slice(1) || "Error";
             }
         },
 
         /**
-         * Shows detailed service errors in a dialog using MessageView.
+         * Shows detailed service errors.
          * @private
-         * @param {Array<object>} aErrorDetails The array of error details from the service's innererror.
+         * @param {Array} aErrorDetails The error details.
          */
         _showDetailedServiceError(aErrorDetails) {
-            const aMessageItems = aErrorDetails.map(detail => ({
-                type: this._serviceTypeToUI5MessageType(detail.severity),
-                title: this._serviceTypeToUI5MessageType(detail.severity),
-                subtitle: detail.message,
-                description: detail.message
+            const aMessageItems = aErrorDetails.map(oDetail => ({
+                type: this._serviceTypeToUI5MessageType(oDetail.severity),
+                title: this._serviceTypeToUI5MessageType(oDetail.severity),
+                subtitle: oDetail.message,
+                description: oDetail.message
             }));
 
             const oMessageView = new MessageView({
-                showDetailsPageHeader: true,
                 items: {
                     path: "/",
                     template: new MessageItem({
@@ -791,6 +846,7 @@ sap.ui.define([
                     })
                 }
             });
+
             oMessageView.setModel(new JSONModel(aMessageItems));
 
             const oDialog = new Dialog({
