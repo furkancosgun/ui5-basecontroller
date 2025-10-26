@@ -421,7 +421,7 @@ sap.ui.define([
                 }
 
                 const oParams = {
-                    ...(sMethod === "read" ? oArgs : {}),
+                    ...(sMethod === "read" || sMethod === "callFunction" ? oArgs : {}),
                     success: (oData) => {
                         resolve(sMethod === "read" ? (oData.results || oData) : oData);
                     },
