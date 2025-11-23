@@ -590,10 +590,10 @@ sap.ui.define([
             return new Promise((resolve) => {
                 const {
                     title = this.getText(I18N_KEYS.DIGITAL_SIGNATURE_TITLE),
-                        width = 350,
-                        height = 350,
-                        lineWidth = 2,
-                        strokeStyle = "#000000"
+                    width = 350,
+                    height = 350,
+                    lineWidth = 2,
+                    strokeStyle = "#000000"
                 } = oOptions;
 
                 const sHtmlContent = `
@@ -780,6 +780,40 @@ sap.ui.define([
 
             await oSpreadsheet.build();
             oSpreadsheet.destroy();
+        },
+
+        /**
+         * Dynamically loads an external JavaScript file and resolves once the specified global variable is available.
+         * This function uses a Promise structure to handle asynchronous loading and success/failure states.
+         * @public
+         * @param {string} sUrl The URL of the script to load.
+         * @param {string} sGlobalVariableName The name of the global variable to check for (e.g., 'XLSX', 'THREE').
+         * @returns {Promise<any>} A Promise that resolves with the loaded global object (window[sGlobalVariableName]).
+         */
+        async loadExternalScript(sUrl, sGlobalVariableName) {
+            return new Promise((resolve, reject) => {
+                if (window[sGlobalVariableName]) {
+                    resolve(window[sGlobalVariableName]);
+                    return;
+                }
+
+                const script = document.createElement("script");
+                script.src = sUrl;
+
+                script.onload = () => {
+                    if (window[sGlobalVariableName]) {
+                        resolve(window[sGlobalVariableName]);
+                    } else {
+                        reject(new Error(`${sGlobalVariableName} global variable was not available after loading the script.`));
+                    }
+                };
+
+                script.onerror = (err) => {
+                    reject(err || new Error(`Error loading script from ${sUrl}.`));
+                };
+
+                document.head.appendChild(script);
+            });
         },
 
         // =================================================================
