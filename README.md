@@ -30,15 +30,41 @@ This BaseController extends the standard `sap.ui.core.mvc.Controller` with essen
 
 -----
 
-### 🛠️ Data, Service & UI Helpers
+### 🛠️ Busy Indicator & Promise Management
 
 | Method | Description |
 | :--- | :--- |
+| **`showBusyIndicator`** | Displays a busy indicator with optional delay. |
+| **`hideBusyIndicator`** | Hides the busy indicator. |
 | **`withBusyIndicator`** | Wraps any **Promise** (e.g., OData call) with automatic **Busy Indicator** management. |
+
+-----
+
+### 📡 OData & Service Utilities
+
+| Method | Description |
+| :--- | :--- |
 | **`callService`** | An asynchronous, **Promise-based** wrapper for OData CRUD operations (`read`, `create`, `update`, `remove`). |
 | **`createEntityKey`** | Constructs the URI path for an OData entity key. |
-| **`loadFromLocalStorage`, `saveToLocalStorage`** | Simple persistence wrappers for the browser's **Local Storage**. |
+
+-----
+
+### 💾 Local Storage Utilities
+
+| Method | Description |
+| :--- | :--- |
+| **`saveToLocalStorage`** | Saves data to browser's **Local Storage** with JSON serialization. |
+| **`loadFromLocalStorage`** | Retrieves and parses data from **Local Storage**. |
+
+-----
+
+### 📊 Export & External Script Utilities
+
+| Method | Description |
+| :--- | :--- |
 | **`exportTableToExcel`** | Client-side export of a table's content to an **Excel** file, configurable via custom data attributes. |
+| **`loadExternalScript`** | Dynamically loads external JavaScript files and resolves when specified global variable is available. |
+| **`copyTextToClipboard`** | Copies text to user's clipboard with fallback support for older browsers. |
 
 -----
 
@@ -85,7 +111,8 @@ This BaseController extends the standard `sap.ui.core.mvc.Controller` with essen
     digitalSignature.clear=Clear
     digitalSignature.save=Save
     digitalSignature.cancel=Cancel
-
+    clipboard.copied.success=Text copied to clipboard!
+    clipboard.copied.failure=Failed to copy text to clipboard.
     ```
 
     
